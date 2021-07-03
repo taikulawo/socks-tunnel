@@ -3,6 +3,7 @@ use std::io;
 use crate::{core::config::ServerConfig, service::config::Config};
 
 pub mod config;
+pub mod copy;
 mod tcp_relay;
 mod socks5;
 
