@@ -13,9 +13,10 @@ fn main() {
         (@arg WORKER_THREADS: --("worker-threads") +takes_value {validate_usize} "sets the number of worker threads the `Runtime` will use")
     );
     let matches = app.get_matches();
-    let config = matches.value_of("CONFIG") {
+    let config = match matches.value_of("CONFIG") {
         Some(path) => {
 
-        }
-    }
+        },
+        None => return ()
+    };
 }

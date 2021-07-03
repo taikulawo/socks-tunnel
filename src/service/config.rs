@@ -1,4 +1,4 @@
-use std::{fs::OpenOptions, io::{self, Read}, net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6}, path::Path};
+use std::{fs::OpenOptions, io::{self, Read}, net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6}, path::Path, vec};
 use serde::{Deserialize, Serialize};
 
 use crate::core::config::{ServerAddr, ServerConfig};
@@ -41,5 +41,9 @@ impl Config {
             },
             _ => return Err(io::Error::new(io::ErrorKind::Other, "address parse failed"))
         };
+        let server_configs = ServerConfig::new(addr, String::from(""));
+        Ok(Config{
+            server_addr: vec![server_configs]
+        })
     }
 }
