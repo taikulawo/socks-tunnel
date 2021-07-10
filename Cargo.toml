@@ -1,5 +1,5 @@
 [package]
-name = "socks-shadow"
+name = "socks-tunnel"
 version = "0.1.0"
 authors = ["iamwwc <qaq1362211689@gmail.com>"]
 edition = "2018"
@@ -18,3 +18,4 @@ serde_json = "1.0.64"
 serde = { version = "1.0.126", features = ["derive"]}
 log = "0.4"
 thiserror = "1.0"
+trust-dns-resolver = "0.20.3"

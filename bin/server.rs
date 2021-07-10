@@ -3,7 +3,7 @@ use std::fmt::format;
 use clap::clap_app;
 use common::validate_type::validate_usize;
 use futures::{future, stream::FuturesUnordered};
-use socks_shadow::{core::start_to_run_server, service::config::Config};
+use socks_tunnel::{core::start_to_run_server, service::config::Config};
 mod common;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -1,8 +1,11 @@
 use core::slice;
-use std::{error::Error, net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6}, u16, u8, usize, vec};
+use std::{error::Error, fmt::Display, net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6}, u16, u8, usize, vec};
 
 use futures::io;
-use tokio::{io::{AsyncReadExt, AsyncWriteExt}, net::TcpStream};
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
+    net::TcpStream,
+};
 
 /// socks5 implementation
 
@@ -18,20 +21,18 @@ pub struct Socks5Server {
 
 impl Socks5Server {
     pub async fn new(stream: TcpStream) -> Socks5Server {
-        Socks5Server {
-            reader: stream
-        }
+        Socks5Server { reader: stream }
     }
 
     pub async fn read_addr() -> Socks5Address {
         todo!()
     }
 }
-
+#[derive(Clone)]
 pub enum Socks5Address {
     Domain(String, u16),
     Ipv4Addr(SocketAddrV4),
-    Ipv6Addr(SocketAddrV6)
+    Ipv6Addr(SocketAddrV6),
 }
 
 /// https://www.ietf.org/rfc/rfc1928.txt
@@ -50,11 +51,11 @@ impl Socks5Address {
         reader.write(&[0x05, 0x00]).await?;
         // todo!();
         let command = Socks5Address::parse_request(reader).await?;
-        let address= Socks5Address::parse_address(reader).await?;
+        let address = Socks5Address::parse_address(reader).await?;
         Ok(address)
     }
 
-    async fn parse_request(reader: &mut TcpStream) -> Result<Socks5Command, Socks5Error>{
+    async fn parse_request(reader: &mut TcpStream) -> Result<Socks5Command, Socks5Error> {
         let mut buf = [0u8; 4];
         reader.read_exact(&mut buf).await?;
         let version = &buf[0];
@@ -65,24 +66,24 @@ impl Socks5Address {
             SOCKS5_CMD_COMMECT => Socks5Command::CONNECT,
             SOCKS5_CMD_BIND => Socks5Command::BIND,
             SOCKS5_CMD_UDP => Socks5Command::UDP,
-            _ => return Err(Socks5Error::UnsupportedCommand(buf[1]))
+            _ => return Err(Socks5Error::UnsupportedCommand(buf[1])),
         };
         Ok(cmd)
     }
-    async fn parse_address(r: &mut TcpStream) -> Result<Socks5Address, Socks5Error>{
+    async fn parse_address(r: &mut TcpStream) -> Result<Socks5Address, Socks5Error> {
         let mut buf = [0u8; 1];
         r.read_exact(&mut buf).await?;
         let addr = match buf[0] {
             SOCKS5_ATYP_IPV4 => {
                 let mut buf = [0u8; 6];
                 r.read_exact(&mut buf).await?;
-                let ipv4 = Ipv4Addr::new(buf[0], buf[1], buf[2],buf[3]);
+                let ipv4 = Ipv4Addr::new(buf[0], buf[1], buf[2], buf[3]);
                 let port = unsafe {
                     let raw_port = &buf[4..];
                     u16::from_be(*(raw_port as *const _ as *const _))
                 };
                 Socks5Address::Ipv4Addr(SocketAddrV4::new(ipv4, port))
-            },
+            }
             SOCKS5_ATYP_DOMAIN => {
                 let mut len_buf = [0u8; 1];
                 r.read_exact(&mut len_buf).await?;
@@ -92,13 +93,11 @@ impl Socks5Address {
                 r.read_exact(&mut buf).await?;
                 let domain_name = match String::from_utf8(Vec::from(&buf[..domain_len as usize])) {
                     Ok(x) => x,
-                    Err(..) => return Err(Socks5Error::ParseError)
+                    Err(..) => return Err(Socks5Error::ParseError),
                 };
-                let port = unsafe {
-                    u16::from_be(*(&buf[domain_len..] as *const _ as *const _))
-                };
+                let port = unsafe { u16::from_be(*(&buf[domain_len..] as *const _ as *const _)) };
                 Socks5Address::Domain(domain_name, port)
-            },
+            }
             SOCKS5_ATYP_IPV6 => {
                 let mut buf = [0u8, 18];
                 r.read_exact(&mut buf).await?;
@@ -116,9 +115,24 @@ impl Socks5Address {
                 let port = u16::from_be(buf[8]);
                 Socks5Address::Ipv6Addr(SocketAddrV6::new(ipv6, port, 0, 0))
             }
-            _ => return Err(Socks5Error::UnsupportedATYP(buf[0]))
+            _ => return Err(Socks5Error::UnsupportedATYP(buf[0])),
         };
         Ok(addr)
+    }
+}
+
+impl Display for Socks5Address {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // *self会报错
+        // 由于Domain里的String未实现 Copy Trait
+        // 赋值=不会走Copy语义，这意味着name不能被移出去
+        // https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html#stack-only-data-copy
+        // Tuples, if they only contain types that also implement Copy. For example, (i32, i32) implements Copy, but (i32, String) does not.
+        match self {
+            Self::Domain(name, port) => write!(f, "{}:{}", name, port),
+            Self::Ipv4Addr(ipv4) => write!(f, "{}:{}", ipv4.ip(), ipv4.port()),
+            Self::Ipv6Addr(ipv6) => write!(f, "{}:{}", ipv6.ip(), ipv6.port())
+        }
     }
 }
 
@@ -130,10 +144,8 @@ pub struct Socks5Request {
 pub enum Socks5Command {
     CONNECT,
     BIND,
-    UDP
+    UDP,
 }
-
-
 
 // https://docs.rs/thiserror/1.0.26/thiserror/
 #[derive(Debug, thiserror::Error)]
