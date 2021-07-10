@@ -1,10 +1,9 @@
 use std::net::SocketAddr;
 
-
 #[derive(Debug, Clone)]
 pub enum ServerAddr {
     SocketAddr(SocketAddr),
-    DomainName(String, u16)
+    DomainName(String, u16),
 }
 
 #[derive(Clone, Debug)]
@@ -18,6 +17,6 @@ impl ServerConfig {
         return ServerConfig {
             password,
             server_address: host,
-        }
+        };
     }
 }

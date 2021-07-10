@@ -6,7 +6,7 @@ macro_rules! validate_type {
                 Err(..) => Err($helper.to_owned()),
             }
         }
-    }
+    };
 }
 
 validate_type!(validate_usize, usize, "should be unsigned integer");

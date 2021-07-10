@@ -1,10 +1,16 @@
-use std::{fs::OpenOptions, io::{self, Read}, net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6}, path::Path, vec};
 use serde::{Deserialize, Serialize};
+use std::{
+    fs::OpenOptions,
+    io::{self, Read},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
+    path::Path,
+    vec,
+};
 
 use crate::core::config::{ServerAddr, ServerConfig};
 
 pub struct Config {
-    server_addr: Vec<ServerConfig>,
+    pub server_addr: Vec<ServerConfig>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -35,15 +41,17 @@ impl Config {
             (Some(host), Some(port)) => match host.parse::<Ipv4Addr>() {
                 Ok(v4) => ServerAddr::SocketAddr(SocketAddr::V4(SocketAddrV4::new(v4, port))),
                 Err(..) => match host.parse::<Ipv6Addr>() {
-                    Ok(v6) => ServerAddr::SocketAddr(SocketAddr::V6(SocketAddrV6::new(v6, port, 0, 0))),
+                    Ok(v6) => {
+                        ServerAddr::SocketAddr(SocketAddr::V6(SocketAddrV6::new(v6, port, 0, 0)))
+                    }
                     Err(..) => ServerAddr::DomainName(host, port),
-                }
+                },
             },
-            _ => return Err(io::Error::new(io::ErrorKind::Other, "address parse failed"))
+            _ => return Err(io::Error::new(io::ErrorKind::Other, "address parse failed")),
         };
         let server_configs = ServerConfig::new(addr, String::from(""));
-        Ok(Config{
-            server_addr: vec![server_configs]
+        Ok(Config {
+            server_addr: vec![server_configs],
         })
     }
 }

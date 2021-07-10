@@ -1,5 +1,10 @@
 use core::slice;
-use std::{error::Error, fmt::Display, net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6}, u16, u8, usize, vec};
+use std::{
+    error::Error,
+    fmt::Display,
+    net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6},
+    u16, u8, usize, vec,
+};
 
 use futures::io;
 use tokio::{
@@ -131,14 +136,9 @@ impl Display for Socks5Address {
         match self {
             Self::Domain(name, port) => write!(f, "{}:{}", name, port),
             Self::Ipv4Addr(ipv4) => write!(f, "{}:{}", ipv4.ip(), ipv4.port()),
-            Self::Ipv6Addr(ipv6) => write!(f, "{}:{}", ipv6.ip(), ipv6.port())
+            Self::Ipv6Addr(ipv6) => write!(f, "{}:{}", ipv6.ip(), ipv6.port()),
         }
     }
-}
-
-pub struct Socks5Request {
-    command: Socks5Command,
-    atyp: Socks5Address,
 }
 
 pub enum Socks5Command {
