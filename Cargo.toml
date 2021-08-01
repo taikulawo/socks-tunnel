@@ -19,3 +19,5 @@ serde = { version = "1.0.126", features = ["derive"]}
 log = "0.4"
 thiserror = "1.0"
 trust-dns-resolver = "0.20.3"
+tun = "0.5.1"
+smoltcp = "0.7.3"
