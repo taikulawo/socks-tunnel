@@ -1,3 +1,4 @@
+mod netstack;
 use std::io::Read;
 
 use smoltcp::wire::Ipv4Packet;

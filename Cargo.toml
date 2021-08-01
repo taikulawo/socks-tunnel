@@ -21,3 +21,7 @@ thiserror = "1.0"
 trust-dns-resolver = "0.20.3"
 tun = "0.5.1"
 smoltcp = "0.7.3"
+
+[build-dependencies]
+cc = "1.0"
+bindgen = "0.58"
