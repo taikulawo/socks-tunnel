@@ -7,7 +7,7 @@ pub fn run_tun() {
     let mut config = tun::Configuration::default();
     config.address((10, 0, 0, 1)).netmask((255, 255, 255, 0)).up();
     config.platform(|config| {
-        config.packet_information(true);
+        config.packet_information(false);
     });
     let mut dev = tun::create(&config).unwrap();
     let mut buf = vec![0; 2000];
