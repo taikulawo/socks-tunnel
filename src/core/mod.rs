@@ -14,7 +14,8 @@ pub mod config;
 pub mod copy;
 mod socks5;
 mod tcp_relay;
-
+mod nat;
+pub use nat::NetworkTranslator;
 pub struct Context {
     pub resolver: Resolver,
 }

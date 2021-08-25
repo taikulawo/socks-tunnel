@@ -20,8 +20,9 @@ log = "0.4"
 thiserror = "1.0"
 trust-dns-resolver = "0.20.3"
 tun = "0.5.1"
-smoltcp = "0.7.3"
-
+smoltcp = "0.7.5"
+pretty-hex = "0.2.1"
+lru_time_cache = "0.11.9"
 [build-dependencies]
 cc = "1.0"
 bindgen = "0.58"
